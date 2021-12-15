@@ -109,10 +109,11 @@ while state:
         if check_resources(want_coffee):
             insert_coins()
             if if_change(want_coffee):
+                make_coffee(want_coffee)
                 print(f"Here is your {want_coffee} ☕, enjoy")
             else:
                 continue
-            make_coffee(want_coffee)
+
         else:
             continue
 

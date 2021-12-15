@@ -34,11 +34,16 @@ state = True
 fund = 0
 
 
-
 def report():
-    global money
+
     resources['money'] = money
-    print(resources)
+    for key in resources:
+        if key == "water" or key == "milk":
+            print(f"{key}: {resources[key]}ml")
+        elif key == "coffee":
+            print(f"{key}: {resources[key]}g")
+        else:
+            print(f"{key}: ${resources[key]}")
 
 
 def choose_drink():
@@ -47,20 +52,20 @@ def choose_drink():
 
 
 def turn_off():
-    global state
+
     if want_coffee == "off":
-        print("Come back for more coffee!")
-        state = False
+        print("Shutting down, please standby!")
+        return False
 
 
 def check_resources(drink):
-    global state
-    global resources
+
     for keys, values in MENU[drink]["ingredients"].items():
         if values >= resources[keys]:
             print(f"Sorry there is not enough {keys}")
-            state = False
-
+            return False
+        else:
+            return True
 
 
 def insert_coins():
@@ -70,15 +75,9 @@ def insert_coins():
     dimes = int(input("Please insert dimes: "))
     nickles = int(input("Please insert nickles: "))
     pennies = int(input("Please insert pennies: "))
-    fund = quarters*0.25 + dimes*0.1 + nickles*0.05 + pennies*0.01
+
+    fund = quarters * 0.25 + dimes * 0.1 + nickles * 0.05 + pennies * 0.01
     return fund
-
-
-def check_costs(drink):
-    if fund >= MENU[drink]["cost"]:
-        return True
-    else:
-        return False
 
 
 def if_change(drink):
@@ -86,19 +85,16 @@ def if_change(drink):
     global money
     if fund > MENU[drink]["cost"]:
         change = fund - MENU[drink]["cost"]
-        print(f"Here is ${change} change")
+        print(f"Here is ${change:.2f} your change")
         money += MENU[drink]["cost"]
-
     elif fund == MENU[drink]["cost"]:
         money += MENU[drink]["cost"]
-
     else:
         print("Sorry that's not enough money. Money refunded")
-        state = False
+        return False
 
 
 def make_coffee(drink):
-    global resources
     for ingredients, value in MENU[drink]["ingredients"].items():
         if ingredients not in resources:
             continue
@@ -108,28 +104,22 @@ def make_coffee(drink):
 
 
 while state:
+    want_coffee = input("What would you like? (espresso/latte/cappuccino)☕:\n").lower()
+    if want_coffee in "espresso, latte, cappuccino".lower():
+        if check_resources(want_coffee):
+            insert_coins()
+            if if_change(want_coffee):
+                print(f"Here is your {want_coffee} ☕, enjoy")
+            else:
+                continue
+            make_coffee(want_coffee)
+        else:
+            continue
 
-    want_coffee = input("What would you like? (espresso/latte/cappuccino):\n").lower()
-    if want_coffee == "report":
+    elif want_coffee == "report":
         report()
     elif want_coffee == "off":
-        turn_off()
-    elif want_coffee in "espresso, latte, cappuccino".lower():
-
-        check_resources(want_coffee)
-        insert_coins()
-        if_change(want_coffee)
-        make_coffee(want_coffee)
-        print(f"Here is your {want_coffee}, enjoy")
+        state = turn_off()
+    else:
+        print("unknown command, please try again")
 print("thanks for visiting, please come back later")
-
-
-
-
-
-
-
-
-
-
-
